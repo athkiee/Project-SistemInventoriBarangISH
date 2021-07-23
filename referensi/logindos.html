@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+	<html lang="zxx" class="no-js">
+	<head>
+		<!-- Mobile Specific Meta -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Favicon-->
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<!-- Author Meta -->
+		<meta name="author" content="colorlib">
+		<!-- Meta Description -->
+		<meta name="description" content="">
+		<!-- Meta Keyword -->
+		<meta name="keywords" content="">
+		<!-- meta character set -->
+		<meta charset="UTF-8">
+		<!-- Site Title -->
+        <title>Puddle Lab | Laboratorium FIT</title>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-firestore.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyBHRTrUrl7gqHQqWCJwO-ADcNyte7RkjY8",
+    authDomain: "testing-puddlelab.firebaseapp.com",
+    databaseURL: "https://testing-puddlelab.firebaseio.com",
+    projectId: "testing-puddlelab",
+    storageBucket: "testing-puddlelab.appspot.com",
+    messagingSenderId: "264031156926",
+    appId: "1:264031156926:web:ab0b31e0720c8877"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+</script>
+<script type="text/javascript">
+    /**
+     * Handles the sign in button press.
+     */
+    function toggleSignIn() {
+      if (firebase.auth().currentUser) {
+        // [START signout]
+        firebase.auth().signOut();
+        window.location = 'logindos.html'
+        // [END signout]
+      } else {
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        if (email.length < 4) {
+          alert('Please enter an email address.');
+          return;
+        }
+        if (password.length < 4) {
+          alert('Please enter a password.');
+          return;
+        }
+        // Sign in with email and pass.
+        // [START authwithemail]
+        firebase.auth().signInWithEmailAndPassword(email, password).then(function(user){
+          db.collection('Dosen').doc(email).get().then(doc => {
+            if(!doc.exists){
+              alert('Maaf Anda Bukan Dosen');
+              firebase.auth().signOut();
+            }
+            else {
+              alert('Berhasil Masuk Sebagai Dosen');
+            }
+          })
+        }).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // [START_EXCLUDE]
+          if (errorCode === 'auth/wrong-password') {
+            alert('Wrong password.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);
+          document.getElementById('quickstart-sign-in').disabled = false;
+          // [END_EXCLUDE]
+        });
+        // [END authwithemail]
+      }
+      document.getElementById('quickstart-sign-in').disabled = true;
+    }
+    /**
+     * Handles the sign up button press.
+     */
+    function handleSignUp() {
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      if (email.length < 6) {
+        alert('Please enter an email address.');
+        return;
+      }
+      if (password.length < 6) {
+        alert('Please enter a password.');
+        return;
+      }
+      // Sign in with email and pass.
+      // [START createwithemail]
+      firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user){
+        //singup dosen berhasil
+        db.collection('Dosen').doc(email).set({
+          dosen: true
+        })
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/weak-password') {
+          alert('The password is too weak.');
+        } else {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END createwithemail]
+    }
+    /**
+     * Sends an email verification to the user.
+     */
+    function sendEmailVerification() {
+      // [START sendemailverification]
+      firebase.auth().currentUser.sendEmailVerification().then(function() {
+        // Email Verification sent!
+        // [START_EXCLUDE]
+        alert('Email Verification Sent!');
+        // [END_EXCLUDE]
+      });
+      // [END sendemailverification]
+    }
+    function sendPasswordReset() {
+      var email = document.getElementById('email').value;
+      // [START sendpasswordemail]
+      firebase.auth().sendPasswordResetEmail(email).then(function() {
+        // Password Reset Email Sent!
+        // [START_EXCLUDE]
+        alert('Password Reset Email Sent!');
+        // [END_EXCLUDE]
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/invalid-email') {
+          alert(errorMessage);
+        } else if (errorCode == 'auth/user-not-found') {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END sendpasswordemail];
+    }
+    /**
+     * initApp handles setting up UI event listeners and registering Firebase auth listeners:
+     *  - firebase.auth().onAuthStateChanged: This listener is called when the user is signed in or
+     *    out, and that is where we update the UI.
+     */
+    function initApp() {
+      // Listening for auth state changes.
+      // [START authstatelistener]
+      firebase.auth().onAuthStateChanged(function(user) {
+        // [START_EXCLUDE silent]
+        document.getElementById('quickstart-verify-email').disabled = true;
+        // [END_EXCLUDE]
+        if (user) {
+          // User is signed in.
+          window.location = 'homedos.html';
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var isAnonymous = user.isAnonymous;
+          var uid = user.uid;
+          var providerData = user.providerData;
+          // [START_EXCLUDE]
+          document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign out';
+          document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
+          if (!emailVerified) {
+            document.getElementById('quickstart-verify-email').disabled = false;
+          }
+          // [END_EXCLUDE]
+        } else {
+          // User is signed out.
+          // [START_EXCLUDE]
+          document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign in';
+          document.getElementById('quickstart-account-details').textContent = 'null';
+          // [END_EXCLUDE]
+        }
+        // [START_EXCLUDE silent]
+        document.getElementById('quickstart-sign-in').disabled = false;
+        // [END_EXCLUDE]
+      });
+      // [END authstatelistener]
+      document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+      document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+      document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+      document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
+    }
+    window.onload = function() {
+      initApp();
+    };
+    </script>
+
+		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet">
+			<!--
+			CSS
+			============================================= -->
+			<link rel="stylesheet" href="css/linearicons.css">
+			<link rel="stylesheet" href="css/font-awesome.min.css">
+			<link rel="stylesheet" href="css/bootstrap.css">
+			<link rel="stylesheet" href="css/magnific-popup.css">
+			<link rel="stylesheet" href="css/nice-select.css">
+			<link rel="stylesheet" href="css/animate.min.css">
+			<link rel="stylesheet" href="css/owl.carousel.css">
+			<link rel="stylesheet" href="css/jquery-ui.css">
+			<link rel="stylesheet" href="css/login.css">
+		</head>
+		<body>
+		  <header id="header" id="home">
+	  		<div class="header-top">
+	  			<div class="container">
+			  		<div class="row">
+			  			<div class="col-lg-6 col-sm-6 col-8 header-top-left no-padding">
+			  				<ul>
+								<li><a href="#"><i class="fa fa-facebook"></i></a></li>
+								<li><a href="#"><i class="fa fa-twitter"></i></a></li>
+								<li><a href="#"><i class="fa fa-dribbble"></i></a></li>
+								<li><a href="#"><i class="fa fa-behance"></i></a></li>
+			  				</ul>
+			  			</div>
+			  			<div class="col-lg-6 col-sm-6 col-4 header-top-right no-padding">
+			  				<a href="https://fit.labs.telkomuniversity.ac.id/"><span class="lnr lnr-phone-handset"></span> <span class="text">Laboratorium FIT</span></a>
+			  				<a href="mailto:lab@tass.telkomuniversity.ac.id"><span class="lnr lnr-envelope"></span> <span class="text">lab@tass.telkomuniversity.ac.id</span></a>
+			  			</div>
+			  		</div>
+	  			</div>
+			</div>
+		    <div class="container main-menu">
+		    	<div class="row align-items-center justify-content-between d-flex">
+			      <div id="logo">
+			        <a href="index.html"><img src="img/logo.png" alt="" title="" /></a>
+			      </div>
+			      <nav id="nav-menu-container">
+			        <ul class="nav-menu">
+			          <li><a href="index.html">Home</a></li>
+			          <li class="menu-has-children"><a href="">Login</a>
+                  <ul>
+                  <li><a href="login.html">Login User</a></li>
+                  <li><a href="logindos.html">Login Dosen</a></li>
+                  </ul>
+                </li>
+			          <li><a href="https://igracias.telkomuniversity.ac.id/">i-Gracias</a></li>
+			          <li class="menu-has-children"><a href="">Prosedur</a>
+			            <ul>
+			              <li><a href="blog-home.html">Prosedur Pendaftaran</a></li>
+			              <li><a href="blog-single.html">Prosedur Peminjaman</a></li>
+			            </ul>
+                      </li>
+                      <li><a href="dlapp.html">Download Aplikasi</a></li>
+			          <li><a href="#kontak">Contact</a></li>
+			        </ul>
+			      </nav><!-- #nav-menu-container -->
+		    	</div>
+		    </div>
+          </header><!-- #header -->
+
+          <!-- Login -->
+
+          <section class="banner-area relative" id="home">
+            <br></br>
+				<div class="overlay overlay-bg"></div>
+				<div class="container">
+					<div class="row fullscreen d-flex align-items-center justify-content-between">
+                            <div class="col-lg-4">
+                                    <div class="single-feature">
+                                        <div class="title">
+                                            <h4>Login Dosen</h4>
+                                        </div>
+                                        <div id="form-login" class="form">
+                                            <input class="form-control" type="text" id="email" name="email" placeholder="Email"/>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <input class=form-control type="password" id="password" name="password" placeholder="Password"/>
+                                            <br/><br/>
+                                            <button disabled class="mdl-button mdl-js-button mdl-button--raised" id="quickstart-sign-in" name="signin">Sign In</button>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <button class="mdl-button mdl-js-button mdl-button--raised" id="quickstart-sign-up" name="signup">Sign Up</button>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <button class="mdl-button mdl-js-button mdl-button--raised" disabled id="quickstart-verify-email" name="verify-email">Send Email Verification</button>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <button class="mdl-button mdl-js-button mdl-button--raised" id="quickstart-password-reset" name="verify-email">Send Password Reset Email</button>
+
+                                            <!-- Container where we'll display the user details -->
+                                            <div class="quickstart-user-details-container">
+                                              Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+                                              <div>Firebase auth <code>currentUser</code> object value:</div>
+                                              <pre><code id="quickstart-account-details">null</code></pre>
+                                            </div>
+                                          </div>
+                                          </div>
+                                    </div>
+                                </div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- End banner Area -->
+							</div>
+						</div>
+
+
+					</div>
+				</div>
+			</section>
+
+
+        <!-- Footer -->
+        <footer class="footer-area section-gap">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <div class="single-footer-widget">
+                            <h4>COMPUTER LABORATORY</h4>
+                            <ul>
+                                <li><a href="#">Accounting Laboratory</a></li>
+                                <li><a href="#">BRAVE Laboratory</a></li>
+                                <li><a href="#">Business Computer Laboratory</a></li>
+                                <li><a href="#">CHROME Laboratory</a></li>
+                                <li><a href="#">Database Laboratory</a></li>
+                                <li><a href="#">Database Technology Laboratory</a></li>
+                                <li><a href="#">Data Mining Laboratory</a></li>
+                                <li><a href="#">Enterprise Resources Planning Laboratory</a></li>
+                                <li><a href="#">GEAR Laboratory</a></li>
+                                <li><a href="#">Multimedia Design Laboratory</a></li>
+                                <li><a href="#">Multimedia Technology Laboratory</a></li>
+                                <li><a href="#">OPERA Laboratory</a></li>
+                                <li><a href="#">Operating System Laboratory</a></li>
+                                <li><a href="#">PRIDE Laboratory</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <div class="single-footer-widget">
+                            <h4>ENGINEERING LABORATORY</h4>
+                            <ul>
+                                <li><a href="#">Celluler Communication Laboratory</a></li>
+                                <li><a href="#">Communication System Laboratory</a></li>
+                                <li><a href="#">Computer Networking Laboratory</a></li>
+                                <li><a href="#">Electronic Laboratory</a></li>
+                                <li><a href="#">Hardware Laboratory</a></li>
+                                <li><a href="#">Mechanic Workshop Laboratory</a></li>
+                                <li><a href="#">MicroElectronics Laboratory</a></li>
+                                <li><a href="#">MicroPLC Laboratory</a></li>
+                                <li><a href="#">Optical Communication System Laboratory</a></li>
+                                <li><a href="#">Telecommunication Electronics Laboratory</a></li>
+                                <li><a href="#">Telecommunication Networking Laboratory</a></li>
+                                <li><a href="#">Wireless Communication Laboratory</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <div class="single-footer-widget">
+                            <h4>HOSPITALITY LABORATORY</h4>
+                            <ul>
+                                <li><a href="#">Kitchen</a></li>
+                                <li><a href="#">Office and Lounge</a></li>
+                                <li><a href="#">Restaurant</a></li>
+                                <li><a href="#">Room Division</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <div class="single-footer-widget">
+
+                        </div>
+                    </div>
+                    <div class="col-lg-4  col-md-6 col-sm-6">
+                        <div id="kontak"></div>
+                        <div class="single-footer-widget">
+                            <div style='text-align:center'><h4>Contact Us</h4>
+                            <a href="https://telkomuniversity.ac.id/"><img src="img/telu.png"></a></div>
+                            <p></p>
+                            <div style='text-align:right'><p>Ruang Unit Laboratorium Fakultas Ilmu Terapan
+                                                Gedung Selaru, Lt.1 Universitas Telkom
+                                        Jalan Telekomunikasi No.1 Terusan Buah Batu
+                                                    Bandung, Jawa Barat, Indonesia 40257</p>
+                                                <p></p>
+                                            <p></p></div>
+                                        <div class="info"></div>
+                                  </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom row align-items-center justify-content-between">
+                    <p class="footer-text m-0 col-lg-6 col-md-12"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+                    <div class="col-lg-6 col-sm-12 footer-social">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-dribbble"></i></a>
+                        <a href="#"><i class="fa fa-behance"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+      <script src="js/vendor/jquery-2.2.4.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+			<script src="js/vendor/bootstrap.min.js"></script>
+			<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhOdIF3Y9382fqJYt5I_sswSrEw5eihAA"></script>
+  		<script src="js/easing.min.js"></script>
+			<script src="js/hoverIntent.js"></script>
+			<script src="js/superfish.min.js"></script>
+			<script src="js/jquery.ajaxchimp.min.js"></script>
+			<script src="js/jquery.magnific-popup.min.js"></script>
+    	<script src="js/jquery.tabs.min.js"></script>
+			<script src="js/jquery.nice-select.min.js"></script>
+			<script src="js/owl.carousel.min.js"></script>
+			<script src="js/mail-script.js"></script>
+			<script src="js/main.js"></script>
+		</body>
+	</html>

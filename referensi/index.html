@@ -1,0 +1,763 @@
+	<!DOCTYPE html>
+	<html lang="zxx" class="no-js">
+	<head>
+		<!-- Mobile Specific Meta -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Favicon-->
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<!-- Author Meta -->
+		<meta name="author" content="colorlib">
+		<!-- Meta Description -->
+		<meta name="description" content="">
+		<!-- Meta Keyword -->
+		<meta name="keywords" content="">
+		<!-- meta character set -->
+		<meta charset="UTF-8">
+		<!-- Site Title -->
+		<title>Puddle Lab | Laboratorium FIT</title>
+		<style>
+            .captcha
+            { font: italic bold 16px "Arial", cursive, sans-serif; 
+            color:#a0a0a0;background-color:#c0c0c0;
+            width:100px;border-radius: 5px;
+            text-align:center;
+            text-decoration:line-through;
+            }
+            
+            </style>
+		<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-auth.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyBHRTrUrl7gqHQqWCJwO-ADcNyte7RkjY8",
+    authDomain: "testing-puddlelab.firebaseapp.com",
+    databaseURL: "https://testing-puddlelab.firebaseio.com",
+    projectId: "testing-puddlelab",
+    storageBucket: "testing-puddlelab.appspot.com",
+    messagingSenderId: "264031156926",
+    appId: "1:264031156926:web:ab0b31e0720c8877"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+<script type="text/javascript">
+var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9');
+var i;
+function generateCaptcha()
+         {
+             for (i=0;i<7;i++){
+               var a = alpha[Math.floor(Math.random() * alpha.length)];
+               var b = alpha[Math.floor(Math.random() * alpha.length)];
+               var c = alpha[Math.floor(Math.random() * alpha.length)];
+               var d = alpha[Math.floor(Math.random() * alpha.length)];
+               var e = alpha[Math.floor(Math.random() * alpha.length)];
+               var f = alpha[Math.floor(Math.random() * alpha.length)];
+               var g = alpha[Math.floor(Math.random() * alpha.length)];
+              }
+            var code = a + '' + b + '' + '' + c + '' + d + '' + e + '' + f + '' + g + '';
+            document.getElementById("mainCaptcha").value = code
+          }
+          function removeSpaces(string){
+            return string.split(' ').join('');
+          }
+    /**
+     * Handles the sign in button press.
+     */
+    function toggleSignIn() {
+      if (firebase.auth().currentUser) {
+        // [START signout]
+        firebase.auth().signOut();
+        // [END signout]
+      } else {
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        if (email.length < 4) {
+          alert('Please enter an email address.');
+          return;
+        }
+        if (password.length < 4) {
+          alert('Please enter a password.');
+          return;
+        }
+        // Sign in with email and pass.
+        // [START authwithemail]
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // [START_EXCLUDE]
+          if (errorCode === 'auth/wrong-password') {
+            alert('Wrong password.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);
+          document.getElementById('quickstart-sign-in').disabled = false;
+          // [END_EXCLUDE]
+        });
+        // [END authwithemail]
+      }
+      document.getElementById('quickstart-sign-in').disabled = true;
+    }
+    /**
+     * Handles the sign up button press.
+     */
+    function handleSignUp() {
+		var string1 = removeSpaces(document.getElementById('mainCaptcha').value);
+              var string2 = removeSpaces(document.getElementById('txtInput').value);
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      if (email.length < 4) {
+        alert('Please enter an email address.');
+        return;
+      }
+      if (password.length < 4) {
+        alert('Please enter a password.');
+        return;
+	  }
+	  if (string1 != string2){
+  alert("Captcha salah!")
+  document.getElementById('submit'),disabled = true;
+  generateCaptcha();
+         return true;
+       }
+      // Sign in with email and pass.
+      // [START createwithemail]
+      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/weak-password') {
+          alert('The password is too weak.');
+        } else {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+	  });
+	  alert('Akun berhasil dibuat!')
+	  document.location = 'login.html'
+      // [END createwithemail]
+    }
+    /**
+     * Sends an email verification to the user.
+     */
+    function sendEmailVerification() {
+      // [START sendemailverification]
+      firebase.auth().currentUser.sendEmailVerification().then(function() {
+        // Email Verification sent!
+        // [START_EXCLUDE]
+        alert('Email Verification Sent!');
+        // [END_EXCLUDE]
+      });
+      // [END sendemailverification]
+    }
+    function sendPasswordReset() {
+      var email = document.getElementById('email').value;
+      // [START sendpasswordemail]
+      firebase.auth().sendPasswordResetEmail(email).then(function() {
+        // Password Reset Email Sent!
+        // [START_EXCLUDE]
+        alert('Password Reset Email Sent!');
+        // [END_EXCLUDE]
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/invalid-email') {
+          alert(errorMessage);
+        } else if (errorCode == 'auth/user-not-found') {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END sendpasswordemail];
+    }
+    /**
+     * initApp handles setting up UI event listeners and registering Firebase auth listeners:
+     *  - firebase.auth().onAuthStateChanged: This listener is called when the user is signed in or
+     *    out, and that is where we update the UI.
+     */
+    function initApp() {
+      // Listening for auth state changes.
+      // [START authstatelistener]
+      firebase.auth().onAuthStateChanged(function(user) {
+        // [START_EXCLUDE silent]
+        document.getElementById('quickstart-verify-email').disabled = true;
+        // [END_EXCLUDE]
+        if (user) {
+		  // User is signed in.
+		  alert('Akun berhasil dibuat! Lengkapi biodata akun untuk melanjutkan!');
+		  window.location = 'biodataus.html';
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var isAnonymous = user.isAnonymous;
+          var uid = user.uid;
+          var providerData = user.providerData;
+          // [START_EXCLUDE]
+          document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign out';
+          document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
+          if (!emailVerified) {
+            document.getElementById('quickstart-verify-email').disabled = false;
+          }
+          // [END_EXCLUDE]
+        } else {
+          // User is signed out.
+          // [START_EXCLUDE]
+          document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign in';
+          document.getElementById('quickstart-account-details').textContent = 'null';
+          // [END_EXCLUDE]
+        }
+        // [START_EXCLUDE silent]
+        document.getElementById('quickstart-sign-in').disabled = false;
+        // [END_EXCLUDE]
+      });
+      // [END authstatelistener]
+
+    }
+    window.onload = function() {
+      document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+      document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+      document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
+      initApp();
+	};
+	</script>
+
+		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet"> 
+			<!--
+			CSS
+			============================================= -->
+			<link rel="stylesheet" href="css/linearicons.css">
+			<link rel="stylesheet" href="css/font-awesome.min.css">
+			<link rel="stylesheet" href="css/bootstrap.css">
+			<link rel="stylesheet" href="css/magnific-popup.css">
+			<link rel="stylesheet" href="css/nice-select.css">							
+			<link rel="stylesheet" href="css/animate.min.css">
+			<link rel="stylesheet" href="css/owl.carousel.css">			
+			<link rel="stylesheet" href="css/jquery-ui.css">			
+			<link rel="stylesheet" href="css/main.css">
+		</head>
+		<body>	
+		  <header id="header" id="home">
+	  		<div class="header-top">
+	  			<div class="container">
+			  		<div class="row">
+			  			<div class="col-lg-6 col-sm-6 col-8 header-top-left no-padding">
+			  				<ul>
+								<li><a href="#"><i class="fa fa-facebook"></i></a></li>
+								<li><a href="#"><i class="fa fa-twitter"></i></a></li>
+								<li><a href="#"><i class="fa fa-dribbble"></i></a></li>
+								<li><a href="#"><i class="fa fa-behance"></i></a></li>
+			  				</ul>			
+			  			</div>
+			  			<div class="col-lg-6 col-sm-6 col-4 header-top-right no-padding">
+			  				<a href="https://fit.labs.telkomuniversity.ac.id/"><span class="lnr lnr-phone-handset"></span> <span class="text">Laboratorium FIT</span></a>
+			  				<a href="mailto:lab@tass.telkomuniversity.ac.id"><span class="lnr lnr-envelope"></span> <span class="text">lab@tass.telkomuniversity.ac.id</span></a>			
+			  			</div>
+			  		</div>			  					
+	  			</div>
+			</div>
+		    <div class="container main-menu">
+		    	<div class="row align-items-center justify-content-between d-flex">
+			      <div id="logo">
+			        <a href="index.html"><img src="img/logo.png" alt="" title="" /></a>
+			      </div>
+			      <nav id="nav-menu-container">
+			        <ul class="nav-menu">
+					  <li><a href="index.html">Home</a></li>
+					  <li class="menu-has-children"><a href="">Login</a>
+					  <ul>
+					  <li><a href="login.html">Login User</a></li>
+					  <li><a href="logindos.html">Login Dosen</a></li>
+					  </ul>
+					</li>
+			          <li><a href="https://igracias.telkomuniversity.ac.id/">i-Gracias</a></li>
+			          <li class="menu-has-children"><a href="">Prosedur</a>
+			            <ul>
+			              <li><a href="prodaft.html">Prosedur Pendaftaran</a></li>
+			              <li><a href="propemi.html">Prosedur Peminjaman</a></li>
+			            </ul>
+			          </li>	
+			          <li>
+									<a href="#dlapp">Download Aplikasi</a>
+								</li>		          					          		          
+			          <li><a href="#kontak">Contact</a></li>
+			        </ul>
+			      </nav><!-- #nav-menu-container -->		    		
+		    	</div>
+		    </div>
+		  </header><!-- #header -->
+
+			<!-- start banner Area -->
+			<section class="banner-area relative" id="home">
+				<div class="overlay overlay-bg"></div>	
+				<div class="container">
+					<div class="row fullscreen d-flex align-items-center justify-content-between">
+						<div class="banner-content col-lg-9 col-md-12">
+							<h1 class="text-uppercase">
+								Laboratorium Fakultas Ilmu Terapan</h1>
+								<h1 class="text-uppercase">
+								Universitas Telkom			
+							</h1>
+							<p class="pt-10 pb-10">
+								Website Sistem Peminjaman Ruang Laboratorium berbasis <i>Near Field Communication</i>
+							</p>
+							<a href="#register" class="primary-btn text-uppercase">REGISTER</a>
+						</div>										
+					</div>
+				</div>					
+			</section>
+			<!-- End banner Area -->
+
+			<!-- Start feature Area -->
+			<section class="feature-area">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-4">
+							<div class="single-feature">
+								<div class="title">
+									<h4>Laboratorium</h4>
+								</div>
+								<div class="desc-wrap">
+									<p>
+										Unit Laboratorium Fakultas Ilmu Terapan mengelola dan merawat
+										seluruh Fasilitas Laboratorium untuk menunjang kegiatan Praktikum dan Riset di Fakultas Ilmu Terapan.
+									</p>									
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4">
+							<div class="single-feature">
+								<div class="title">
+									<h4>Produk Laboratorium</h4>
+								</div>
+								<div class="desc-wrap">
+									<p>
+										Unit Laboratorium Fakultas Ilmu Terapan akan terus berinovasi dalam menghasilkan sebuah
+										produk - produk riset laboratorium yang mampu bersaing dalam skala Nasional maupun Global.
+									</p>									
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4">
+							<div class="single-feature">
+								<div class="title">
+									<h4>Layanan</h4>
+								</div>
+								<div class="desc-wrap">
+									<p>
+										Unit Laboratorium Fakultas Ilmu Terapan melayani berbagai macam peminjaman
+										Alat dan Laboratorium untuk keperluan berbagai macam kegiatan baik Internal Kampus maupun Eksternal.
+									</p>									
+								</div>
+							</div>
+						</div>												
+					</div>
+				</div>	
+			</section>
+			<!-- End feature Area -->
+				
+						<!-- Login Area -->
+						<section class="search-course-area relative">
+							<div id="register"></div>
+							<div class="overlay overlay-bg"></div>
+							<div class="container">
+								<div class="row justify-content-between align-items-center">
+									<div class="col-lg-6 col-md-6 search-course-left">
+										<h1 class="text-white">
+											Pendaftaran akun baru
+										</h1>
+										<p>
+											Untuk tata cara alur pendaftaran dapat dilihat pada laman Prosedur Pendaftaran.
+										</p>
+										<div class="row details-content">
+											<div class="col single-detials">
+												<span class="lnr lnr-graduation-hat"></span>
+												<a href="#"><h4>Form Registrasi</h4></a>		
+												<p>
+													Isi form registrasi dengan lengkap untuk melengkapi data keperluan akun dan keperluan peminjaman
+												</p>						
+											</div>
+											<div class="col single-detials">
+												<span class="lnr lnr-license"></span>
+												<a href="#"><h4>Validasi ID NFC</h4></a>		
+												<p>
+													Lakukan validasi akun menggunakan nomor serial NFC pada ruang admin untuk mengaktifkan akun baru dan melakukan peminjaman.
+												</p>						
+											</div>								
+										</div>
+									</div>	
+									<div class="col-lg-4 col-md-6 search-course-right section-gap">
+											<h1 class="text-white pb-20 text-center mb-30">Form Registrasi User</h1>		
+											<input class="form-control" type="text" id="email" name="email" placeholder="Email"/>
+														&nbsp;&nbsp;&nbsp;
+														<input class=form-control type="password" id="password" name="password" placeholder="Password"/>
+														<br>
+														<table>
+															<tr>
+															   <td>
+															   </td>
+															</tr>
+															<tr>
+															   <td>
+																  Captcha         : <input type="text" class="captcha" onload=generateCaptcha(); id="mainCaptcha" readonly="readonly"/>
+																  <input type="button" id="refresh" value="Refresh" onclick=generateCaptcha(); />
+															   </td>
+															</tr>
+															<tr>
+															   <td>
+																 Masukkan Captcha : <input type="text" id="txtInput"/>    
+															   </td>
+															</tr>
+															
+														 </table>
+														 <br>
+														<center><button class="mdl-button mdl-js-button mdl-button--raised" id="quickstart-sign-up" name="signup">Sign Up</button>
+														&nbsp;&nbsp;&nbsp;
+														<button disabled class="mdl-button mdl-js-button mdl-button--raised" id="quickstart-sign-in" name="signin"><a href="login.html">Already have account?</a></Already></button>
+														&nbsp;&nbsp;&nbsp;</center>
+
+										</form>
+									</div>		
+								</div>
+							</div>
+							</div>
+						</div>
+							</section>	
+						</section>
+						<!-- End search-course Area -->
+
+			<!-- Start popular-course Area -->
+			<section class="popular-course-area section-gap">
+				<div class="container">
+					<div class="row d-flex justify-content-center">
+						<div class="menu-content pb-70 col-lg-8">
+							<div class="title text-center">
+								<h1 class="mb-10">Laboratorium FIT</h1>
+								<p>Beberapa laboratorium yang ada di Fakultas Ilmu Terapan</p>
+							</div>
+						</div>
+					</div>						
+					<div class="row">
+						<div class="active-popular-carusel">
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p1.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>G9</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											Optical Communication System Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>	
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p2.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>G4</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											Telecommunication Network Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>	
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p3.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>G10</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											System Telecommunication Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>	
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p4.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>G1</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											Celluler Communication Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p1.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>E3</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											Wireless Communication Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>	
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p2.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>A7</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											Multimedia Design Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>	
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p3.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>D4</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											PRIDE Laboratory
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>	
+							<div class="single-popular-carusel">
+								<div class="thumb-wrap relative">
+									<div class="thumb relative">
+										<div class="overlay overlay-bg"></div>	
+										<img class="img-fluid" src="img/p4.jpg" alt="">
+									</div>
+									<div class="meta d-flex justify-content-between">
+										<h4>$150</h4>
+									</div>									
+								</div>
+								<div class="details">
+									<a href="#">
+										<h4>
+											Learn Surveying
+										</h4>
+									</a>
+									<p>
+										When television was young, there was a hugely popular show based on the still popular fictional characte										
+									</p>
+								</div>
+							</div>							
+						</div>
+					</div>
+				</div>	
+			</section>
+			<!-- End popular-course Area -->
+				
+			
+			<!-- Start cta-one Area -->
+			<section class="cta-one-area relative section-gap">
+				<div id="dlapp"></div>
+				<div class="container">
+					<div class="overlay overlay-bg"></div>
+					<div class="row justify-content-center">
+						<div class="wrap">
+							<h1 class="text-white">Download Aplikasi Puddle Lab</h1>
+							<p>
+								Download aplikasi Puddle Lab pada platform Android untuk memudahkan proses peminjaman ruang laboratorium sekaligus melihat jadwal peminjaman ruang laboratorium.
+							</p>
+							<a class="primary-btn wh" href="#">DOWNLOAD</a>								
+						</div>					
+					</div>
+				</div>	
+			</section>
+			<!-- End cta-one Area -->
+								
+			<!-- start footer Area -->		
+			<footer class="footer-area section-gap">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="single-footer-widget">
+								<h4>COMPUTER LABORATORY</h4>
+								<ul>
+									<li><a href="#">Accounting Laboratory</a></li>
+									<li><a href="#">BRAVE Laboratory</a></li>
+									<li><a href="#">Business Computer Laboratory</a></li>
+									<li><a href="#">CHROME Laboratory</a></li>
+									<li><a href="#">Database Laboratory</a></li>
+									<li><a href="#">Database Technology Laboratory</a></li>
+									<li><a href="#">Data Mining Laboratory</a></li>
+									<li><a href="#">Enterprise Resources Planning Laboratory</a></li>
+									<li><a href="#">GEAR Laboratory</a></li>
+									<li><a href="#">Multimedia Design Laboratory</a></li>
+									<li><a href="#">Multimedia Technology Laboratory</a></li>
+									<li><a href="#">OPERA Laboratory</a></li>
+									<li><a href="#">Operating System Laboratory</a></li>
+									<li><a href="#">PRIDE Laboratory</a></li>
+								</ul>								
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="single-footer-widget">
+								<h4>ENGINEERING LABORATORY</h4>
+								<ul>
+									<li><a href="#">Celluler Communication Laboratory</a></li>
+									<li><a href="#">Communication System Laboratory</a></li>
+									<li><a href="#">Computer Networking Laboratory</a></li>
+									<li><a href="#">Electronic Laboratory</a></li>
+									<li><a href="#">Hardware Laboratory</a></li>
+									<li><a href="#">Mechanic Workshop Laboratory</a></li>
+									<li><a href="#">MicroElectronics Laboratory</a></li>
+									<li><a href="#">MicroPLC Laboratory</a></li>
+									<li><a href="#">Optical Communication System Laboratory</a></li>
+									<li><a href="#">Telecommunication Electronics Laboratory</a></li>
+									<li><a href="#">Telecommunication Networking Laboratory</a></li>
+									<li><a href="#">Wireless Communication Laboratory</a></li>
+								</ul>								
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="single-footer-widget">
+								<h4>HOSPITALITY LABORATORY</h4>
+								<ul>
+									<li><a href="#">Kitchen</a></li>
+									<li><a href="#">Office and Lounge</a></li>
+									<li><a href="#">Restaurant</a></li>
+									<li><a href="#">Room Division</a></li>
+								</ul>								
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6 col-sm-6">
+							<div class="single-footer-widget">
+						
+							</div>
+						</div>																		
+						<div class="col-lg-4  col-md-6 col-sm-6">
+							<div id="kontak"></div>
+							<div class="single-footer-widget">
+								<div style='text-align:center'><h4>Contact Us</h4>
+								<a href="https://telkomuniversity.ac.id/"><img src="img/telu.png"></a></div>
+								<p></p>
+								<div style='text-align:right'><p>Ruang Unit Laboratorium Fakultas Ilmu Terapan
+													Gedung Selaru, Lt.1 Universitas Telkom
+											Jalan Telekomunikasi No.1 Terusan Buah Batu
+														Bandung, Jawa Barat, Indonesia 40257</p>
+													<p></p>
+												<p></p></div>
+									    	<div class="info"></div>  
+									  </div>
+									</form> 
+								</div>
+							</div>
+						</div>											
+					</div>
+					<div class="footer-bottom row align-items-center justify-content-between">
+						<p class="footer-text m-0 col-lg-6 col-md-12"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+						<div class="col-lg-6 col-sm-12 footer-social">
+							<a href="#"><i class="fa fa-facebook"></i></a>
+							<a href="#"><i class="fa fa-twitter"></i></a>
+							<a href="#"><i class="fa fa-dribbble"></i></a>
+							<a href="#"><i class="fa fa-behance"></i></a>
+						</div>
+					</div>						
+				</div>
+			</footer>	
+			<!-- End footer Area -->	
+
+			<script>
+				window.onload = function(){
+					generateCaptcha();
+				}
+			</script>
+			<script src="js/vendor/jquery-2.2.4.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+			<script src="js/vendor/bootstrap.min.js"></script>			
+			<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhOdIF3Y9382fqJYt5I_sswSrEw5eihAA"></script>
+  			<script src="js/easing.min.js"></script>			
+			<script src="js/hoverIntent.js"></script>
+			<script src="js/superfish.min.js"></script>	
+			<script src="js/jquery.ajaxchimp.min.js"></script>
+			<script src="js/jquery.magnific-popup.min.js"></script>	
+    		<script src="js/jquery.tabs.min.js"></script>						
+			<script src="js/jquery.nice-select.min.js"></script>	
+			<script src="js/owl.carousel.min.js"></script>									
+			<script src="js/mail-script.js"></script>	
+			<script src="js/main.js"></script>	
+		</body>
+	</html>

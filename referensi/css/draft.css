@@ -1,0 +1,46 @@
+header,footer,aside{
+    display:block;
+}
+
+.table-draft{
+width:1000px;
+}
+
+.container-draft{
+    width: 1000px;
+    margin: 0 auto;
+}
+
+.headerbar-draft{
+    width: 1000px;
+    float: left;
+}
+
+.headerbar-draft.top{
+    background: #2ecc71;
+    min-height: 100px;
+
+}
+
+th,td{
+    padding:10px;
+}
+
+.headerbar-draft.bottom{
+    background: #2ecc71;
+    min-height: 60px;    
+}
+
+.leftbar-draft{
+    width: 500px;
+    background: cyan;
+    min-height: 800px;
+    float: left;
+}
+
+.rightbar-draft{
+    width: 500px;
+    background: cyan;
+    min-height: 800px;
+    float: left;
+}

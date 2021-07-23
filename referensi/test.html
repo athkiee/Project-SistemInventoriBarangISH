@@ -1,0 +1,47 @@
+<html>
+    <body>
+        <table>
+            <tbody id="data"></tbody>
+        </table>
+    </body>
+</html>
+
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.2/firebase-firestore.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyBHRTrUrl7gqHQqWCJwO-ADcNyte7RkjY8",
+    authDomain: "testing-puddlelab.firebaseapp.com",
+    databaseURL: "https://testing-puddlelab.firebaseio.com",
+    projectId: "testing-puddlelab",
+    storageBucket: "testing-puddlelab.appspot.com",
+    messagingSenderId: "264031156926",
+    appId: "1:264031156926:web:ab0b31e0720c8877"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  firebase.auth().onAuthStateChanged(function(user){
+    if(user){
+    db.collection('historiUser').get().then(function(querySnapshot){
+        var data = "";
+        querySnapshot.forEach(function(doc){
+            console.log(doc.id);
+            db.collection('/historiUser/'+doc.id+'/TanggalPeminjaman').get().then(function(querySnapshot2){
+                querySnapshot2.forEach(function(doc2){
+                    console.log(doc2.data());
+                });
+            });
+        });
+    });
+    }
+    
+});
+
+</script>
